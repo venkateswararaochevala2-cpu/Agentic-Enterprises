@@ -1,0 +1,1388 @@
+{
+  "name": "Agentic Enterprises",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "05d8e428-21f7-4499-b821-b3b6e330f6b0",
+      "name": "CEO Input Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "ceo_goal",
+              "value": "Increase MRR by 50% in 90 days",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "timeline",
+              "value": 90,
+              "type": "number"
+            },
+            {
+              "id": "id-3",
+              "name": "budget_constraint",
+              "value": 250000,
+              "type": "number"
+            },
+            {
+              "id": "id-4",
+              "name": "current_cac",
+              "value": 180,
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "current_churn",
+              "value": 5.5,
+              "type": "number"
+            },
+            {
+              "id": "id-6",
+              "name": "sessionId",
+              "value": "=ceo-session-{{ $now.format('yyyy-MM-dd-HH-mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "83fcf987-902f-4ef0-9dae-6d8fa8423a89",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1136,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "chatInput",
+              "value": "=CEO Goal: {{ $json.ceo_goal }}\nBudget: ${{ $json.budget_constraint }}\nTimeline: {{ $json.timeline }} days\nCurrent CAC: ${{ $json.current_cac }}\nCurrent Churn: {{ $json.current_churn }}%",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "budget_constraint",
+              "value": "={{ $json.budget_constraint }}",
+              "type": "number"
+            },
+            {
+              "id": "id-4",
+              "name": "timeline",
+              "value": "={{ $json.timeline }}",
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "current_cac",
+              "value": "={{ $json.current_cac }}",
+              "type": "number"
+            },
+            {
+              "id": "id-6",
+              "name": "current_churn",
+              "value": "={{ $json.current_churn }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ef7b074-c122-4771-8db4-219ca99f3466",
+      "name": "Set Company Constraints",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -944,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department_tasks\":{\"sales\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0},\"marketing\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0},\"finance\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0},\"operations\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0},\"support\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0},\"hr\":{\"objective\":\"string\",\"success_metrics\":[\"string\"],\"suggested_budget\":0}}}",
+        "autoFix": true
+      },
+      "id": "b6409477-0948-4e38-9689-533c8072da05",
+      "name": "CEO Orchestrator Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -592,
+        2208
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are CEO Orchestration AI. Analyze this goal and break it into tasks for 6 departments: Sales, Marketing, Finance, Operations, Support, HR.\n\n{{ $json.chatInput }}\n\nFor each department output JSON with:\n- objective: Clear department-specific goal\n- success_metrics: Array of measurable KPIs\n- suggested_budget: Recommended budget allocation\n\nEnsure all 5 departments have tasks aligned with the CEO goal.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a strategic CEO advisor that decomposes high-level business goals into actionable department-level objectives. Always output valid JSON matching the schema.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "c20575df-f5a2-43ff-ad76-3789cec2e70e",
+      "name": "CEO Orchestrator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -656,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Sales"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Marketing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Finance"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Operations"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Support"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "HR"
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "id": "da6d6da9-154b-4f61-aa84-b96bb4506089",
+      "name": "Route to Department Agents",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department\":\"sales\",\"action_plan\":[\"string\"],\"revenue_projection\":{\"month_1\":0,\"month_2\":0,\"month_3\":0},\"resource_needs\":{\"budget_required\":0,\"additional_headcount\":0},\"kpis\":[{\"metric\":\"string\",\"target\":0,\"current\":0}]}",
+        "autoFix": true
+      },
+      "id": "fd0e0d6c-8dfa-42f9-a9d5-6798940e6295",
+      "name": "Sales Agent Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Sales Strategy AI.\n\nTask: {{ $('CEO Orchestrator Agent').item.json.output.department_tasks.sales.objective }}\nBudget: ${{ $('CEO Orchestrator Agent').item.json.output.department_tasks.sales.suggested_budget }}\nTimeline: {{ $('Set Company Constraints').item.json.timeline }} days\n\nCreate a detailed sales action plan with:\n- action_plan: 3-5 specific initiatives\n- revenue_projection: Monthly revenue targets (month_1, month_2, month_3)\n- resource_needs: Budget required and additional headcount\n- kpis: Key metrics with targets and current values\n\nOutput valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a sales strategy expert focused on revenue growth and pipeline optimization. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "5fdc3ba0-9091-4838-b434-28b68c6b6b16",
+      "name": "Sales Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department\":\"marketing\",\"channel_strategy\":{\"paid_ads\":0,\"content\":0,\"seo\":0},\"lead_targets\":{\"monthly_leads\":0,\"mql\":0,\"expected_cac\":0},\"resource_needs\":{\"budget_required\":0,\"additional_headcount\":0},\"kpis\":[{\"metric\":\"string\",\"target\":0,\"current\":0}]}",
+        "autoFix": true
+      },
+      "id": "aaedbe0a-cd58-429a-b423-6e90c25bb3b3",
+      "name": "Marketing Agent Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        592,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Marketing Strategy AI.\n\nTask: {{ $('CEO Orchestrator Agent').item.json.output.department_tasks.marketing.objective }}\nBudget: ${{ $('CEO Orchestrator Agent').item.json.output.department_tasks.marketing.suggested_budget }}\nCurrent CAC: ${{ $('Set Company Constraints').item.json.current_cac }}\n\nCreate a marketing strategy with:\n- channel_strategy: Budget allocation across paid_ads, content, seo\n- lead_targets: monthly_leads, mql (marketing qualified leads), expected_cac\n- resource_needs: Budget required and additional headcount\n- kpis: Key metrics with targets and current values\n\nOutput valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a marketing strategy expert focused on lead generation and CAC optimization. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "6895b69e-8715-4a96-8b80-7d188f3871bc",
+      "name": "Marketing Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        528,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department\":\"finance\",\"approved_allocations\":{\"sales\":0,\"marketing\":0,\"operations\":0,\"support\":0,\"hr\":0},\"roi_projection\":{\"expected_revenue_increase\":0,\"payback_months\":0,\"roi_percent\":0},\"resource_needs\":{\"budget_required\":0}}",
+        "autoFix": true
+      },
+      "id": "287ebd14-0501-4da3-99a6-5533144d7b9d",
+      "name": "Finance Agent Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Finance Analysis AI.\n\nTask: {{ $('CEO Orchestrator Agent').item.json.output.department_tasks.finance.objective }}\nTotal Budget Available: ${{ $('Set Company Constraints').item.json.budget_constraint }}\n\nAnalyze budget requests and create:\n- approved_allocations: Budget for each department (sales, marketing, operations, support, hr)\n- roi_projection: expected_revenue_increase, payback_months, roi_percent\n- resource_needs: Budget required for finance operations\n\nEnsure total allocations do not exceed available budget. Output valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a financial analyst focused on ROI optimization and budget allocation. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "14311467-de6a-4cfb-ab33-3dbc10f690ee",
+      "name": "Finance Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        752,
+        992
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department\":\"operations\",\"process_improvements\":[{\"process\":\"string\",\"efficiency_gain\":\"string\"}],\"resource_needs\":{\"budget_required\":0,\"additional_headcount\":0},\"kpis\":[{\"metric\":\"string\",\"target\":0,\"current\":0}]}",
+        "autoFix": true
+      },
+      "id": "352486a0-4d30-402f-92e6-163c377329e2",
+      "name": "Operations Agent Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        3040
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Operations Excellence AI.\n\nTask: {{ $('CEO Orchestrator Agent').item.json.output.department_tasks.operations.objective }}\nBudget: ${{ $('CEO Orchestrator Agent').item.json.output.department_tasks.operations.suggested_budget }}\n\nCreate an operations plan with:\n- process_improvements: Array of processes with efficiency gains\n- resource_needs: Budget required and additional headcount\n- kpis: Key metrics with targets and current values\n\nOutput valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an operations expert focused on process efficiency and scalability. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "ffe0dd81-06f7-4d89-9b5a-a6ac808c9b06",
+      "name": "Operations Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"department\":\"support\",\"churn_reduction_plan\":{\"target_churn\":0,\"current\":0,\"initiatives\":[\"string\"]},\"resource_needs\":{\"budget_required\":0,\"additional_headcount\":0},\"kpis\":[{\"metric\":\"string\",\"target\":0,\"current\":0}]}",
+        "autoFix": true
+      },
+      "id": "6f6b43f0-e40d-465d-b27e-bab6e4367884",
+      "name": "Support Agent Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        3024
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Customer Support AI.\n\nTask: {{ $('CEO Orchestrator Agent').item.json.output.department_tasks.support.objective }}\nBudget: ${{ $('CEO Orchestrator Agent').item.json.output.department_tasks.support.suggested_budget }}\nCurrent Churn: {{ $('Set Company Constraints').item.json.current_churn }}%\n\nCreate a support strategy with:\n- churn_reduction_plan: target_churn, current churn, and initiatives array\n- resource_needs: Budget required and additional headcount\n- kpis: Key metrics with targets and current values\n\nOutput valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a customer success expert focused on retention and churn reduction. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "e8c98d3e-1b9d-457a-8633-d8882f3ad7db",
+      "name": "Support Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -224,
+        2624
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "id": "3451edc0-a112-456b-8e3a-426ddc97149c",
+      "name": "Merge Department Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        560,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"conflicts\":[{\"type\":\"string\",\"description\":\"string\"}],\"resolutions\":[{\"solution\":\"string\",\"rationale\":\"string\"}],\"final_allocations\":{\"sales\":0,\"marketing\":0,\"finance\":0,\"operations\":0,\"support\":0,\"hr\":0},\"total_budget_used\":0}",
+        "autoFix": true
+      },
+      "id": "cb1ce6aa-5a03-4331-9b44-16bcf3693600",
+      "name": "Conflict Resolver Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        2304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Conflict Resolution AI.\n\nBudget Available: $={{ $('Set Company Constraints').item.json.budget_constraint }}\n\nDepartment Outputs:\n={{ JSON.stringify($input.all()) }}\n\nAnalyze all department budget requests and identify conflicts:\n- conflicts: Array of issues (budget overruns, resource conflicts)\n- resolutions: Solutions with rationale\n- final_allocations: Approved budget for each department\n- total_budget_used: Sum of all allocations\n\nEnsure total_budget_used does not exceed available budget. Output valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a strategic conflict resolver that balances competing priorities within budget constraints. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "4cdf0c5f-7c8a-4aba-af75-dfe145bd2a96",
+      "name": "Conflict Resolver Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        784,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\"executive_summary\":\"string\",\"key_metrics\":{\"total_budget\":0,\"expected_revenue_increase\":0,\"roi_percent\":0,\"new_headcount\":0},\"department_summaries\":[{\"department\":\"string\",\"budget\":0,\"key_initiatives\":[\"string\"],\"expected_impact\":\"string\"}],\"risks\":[\"string\"],\"next_steps\":[\"string\"]}",
+        "autoFix": true
+      },
+      "id": "33332a1e-3b39-4b08-998d-21925aaf2052",
+      "name": "Executive Dashboard Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        2304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Executive Dashboard Generator AI.\n\nConflict Resolution Output:\n{{ JSON.stringify($json.output) }}\n\nCreate a comprehensive executive dashboard with:\n- executive_summary: High-level overview of the plan\n- key_metrics: total_budget, expected_revenue_increase, roi_percent, new_headcount\n- department_summaries: Array with department, budget, key_initiatives, expected_impact\n- risks: Array of potential risks\n- next_steps: Array of immediate action items\n\nOutput valid JSON matching the schema.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an executive communications expert that creates clear, actionable dashboards for C-level decision makers. Always output valid JSON.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "8880efbe-cd6c-4d50-a232-1c4bd5740e99",
+      "name": "Final Aggregator Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1152,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"executive_summary\": \"{{$json.output.executive_summary}}\",\n  \"key_metrics\": {{$json.output.key_metrics}},\n  \"department_summaries\": {{$json.output.department_summaries}},\n  \"risks\": {{$json.output.risks}},\n  \"next_steps\": {{$json.output.next_steps}}\n}\n",
+        "options": {}
+      },
+      "id": "25423182-208c-4091-8320-1bd242974398",
+      "name": "Format Executive Dashboard",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1552,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        592,
+        800
+      ],
+      "id": "d352f567-3f91-4dee-8ce5-6af4c5a85fe5",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rG663RwkltEXyZkW",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        816,
+        1552
+      ],
+      "id": "3d44adb4-3c6a-4a04-bd11-5660f4bda553",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "f87ivzqm8TKmZ6ue",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        288,
+        3248
+      ],
+      "id": "30cd56ef-ca7c-410f-af56-8c0b584672f7",
+      "name": "Google Gemini Chat Model5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "HOt2pd00W9Jwms8q",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        3232
+      ],
+      "id": "01f77a40-c015-4fe5-aee8-0f361e014304",
+      "name": "Google Gemini Chat Model6",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Q0dH7pJOm5F5NoRd",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Set Company Constraints').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        352
+      ],
+      "id": "65308f33-f3d0-4e2a-ac1e-90280eb1d1bf",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        2400
+      ],
+      "id": "d2b757a3-b8f9-4b26-8812-7d4e905aff0c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UVtZKX6ERXWgjzTI",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        2096
+      ],
+      "id": "1a999f29-b076-47de-a216-86b92796f10d",
+      "name": "Google Gemini Chat Model7",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UVtZKX6ERXWgjzTI",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        528,
+        576
+      ],
+      "id": "40f5fcb3-b07e-46cf-889f-b3f7ecc02034",
+      "name": "Google Gemini Chat Model8",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rG663RwkltEXyZkW",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        752,
+        1216
+      ],
+      "id": "26ac2d15-c6cc-401c-b875-b2a692dc079a",
+      "name": "Google Gemini Chat Model9",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "f87ivzqm8TKmZ6ue",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        2848
+      ],
+      "id": "81f0e159-73da-46e8-b5ec-79f4a5033d3a",
+      "name": "Google Gemini Chat Model10",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "HOt2pd00W9Jwms8q",
+          "name": "Google Gemini(PaLM) Api account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        2832
+      ],
+      "id": "5a888ecd-f511-43cb-9217-2d95be13e643",
+      "name": "Google Gemini Chat Model11",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Q0dH7pJOm5F5NoRd",
+          "name": "Google Gemini(PaLM) Api account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "19fd79b4-6c30-4863-acb1-278d3f65c732",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xhDMOSnpgW1b06gJ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        192
+      ],
+      "id": "450911cc-1697-4a3c-873c-0e34a5067c66",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "xhDMOSnpgW1b06gJ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        784,
+        2144
+      ],
+      "id": "ccc58105-edd1-4fb1-b610-f985b50d4d22",
+      "name": "Google Gemini Chat Model12",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RRLodYTSKol31RBM",
+          "name": "Google Gemini(PaLM) Api account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        848,
+        2496
+      ],
+      "id": "01fbf51d-3b6e-4be4-b602-d795c98bb718",
+      "name": "Google Gemini Chat Model13",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RRLodYTSKol31RBM",
+          "name": "Google Gemini(PaLM) Api account 7"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        2128
+      ],
+      "id": "56d53e0a-8035-463d-817e-72f836ab1b93",
+      "name": "Google Gemini Chat Model14",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z9Giv92D8BxANbTt",
+          "name": "Google Gemini(PaLM) Api account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        2528
+      ],
+      "id": "1404c2fe-8231-406c-80df-3fdda746b7c3",
+      "name": "Google Gemini Chat Model15",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z9Giv92D8BxANbTt",
+          "name": "Google Gemini(PaLM) Api account 8"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CEO Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Set Company Constraints",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Company Constraints": {
+      "main": [
+        [
+          {
+            "node": "CEO Orchestrator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CEO Orchestrator Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "CEO Orchestrator Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CEO Orchestrator Agent": {
+      "main": [
+        [
+          {
+            "node": "Route to Department Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Department Agents": {
+      "main": [
+        [
+          {
+            "node": "Sales Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finance Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Operations Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Support Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Agent Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Sales Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marketing Agent Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finance Agent Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Finance Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operations Agent Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Operations Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support Agent Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Support Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Department Outputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marketing Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Department Outputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Finance Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Department Outputs",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Operations Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Department Outputs",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Support Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Department Outputs",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge Department Outputs": {
+      "main": [
+        [
+          {
+            "node": "Conflict Resolver Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conflict Resolver Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Conflict Resolver Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conflict Resolver Agent": {
+      "main": [
+        [
+          {
+            "node": "Final Aggregator Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Executive Dashboard Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Final Aggregator Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Aggregator Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Executive Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Marketing Agent Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Finance Agent Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Operations Agent Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Support Agent Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "CEO Orchestrator Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Sales Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Marketing Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Finance Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Operations Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Support Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Conflict Resolver Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Final Aggregator Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CEO Orchestrator Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CEO Orchestrator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Finance Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Operations Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model11": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Support Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sales Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sales Agent Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model12": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Conflict Resolver Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model13": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Conflict Resolver Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model14": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Final Aggregator Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model15": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Executive Dashboard Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e89e2974-0d57-47b9-8c41-0c0b557aec42",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cf505401995acffbe9aaad102e87c3582a53ce82d6b9676e4b70261f21ca44d2"
+  },
+  "id": "psH4vnc5wDNWjX4L6-3Hb",
+  "tags": []
+}
