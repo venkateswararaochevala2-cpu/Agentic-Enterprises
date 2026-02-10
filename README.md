@@ -260,4 +260,4 @@ The future of enterprise operations is not static dashboards or isolated copilot
 
 License
 
-MIT (or specify your preferred license)
+MIT
